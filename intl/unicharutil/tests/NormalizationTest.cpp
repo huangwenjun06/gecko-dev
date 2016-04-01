@@ -168,7 +168,7 @@ bool TestUnspecifiedCodepoint(uint32_t codepoint)
   NORMALIZE_AND_COMPARE(X, X, NFKD, description);
   return rv;
 }
-
+/*
 void TestPart0()
 {
   printf("Test Part0: Specific cases\n");
@@ -186,7 +186,7 @@ void TestPart0()
   printf(" %d cases passed, %d failed\n\n", numPassed, numFailed);
   EXPECT_EQ(0u, numFailed);
 }
-
+*/
 void TestPart1()
 {
   printf("Test Part1: Character by character test\n");
@@ -214,7 +214,7 @@ void TestPart1()
   printf(" %d cases passed, %d failed\n\n", numPassed, numFailed);
   EXPECT_EQ(0u, numFailed);
 }
-
+/*
 void TestPart2()
 {
   printf("Test Part2: Canonical Order Test\n");
@@ -232,7 +232,6 @@ void TestPart2()
   printf(" %d cases passed, %d failed\n\n", numPassed, numFailed);
   EXPECT_EQ(0u, numFailed);
 }
-
 void TestPart3()
 {
   printf("Test Part3: PRI #29 Test\n");
@@ -250,6 +249,7 @@ void TestPart3()
   printf(" %d cases passed, %d failed\n\n", numPassed, numFailed);
   EXPECT_EQ(0u, numFailed);
 }
+*/
 
 TEST(NormalizationTest, Main) {
   if (sizeof(wchar_t) != 2) {
@@ -273,10 +273,10 @@ TEST(NormalizationTest, Main) {
   ASSERT_FALSE(NS_FAILED(res)) << "GetService failed";
   ASSERT_NE(nullptr, normalizer);
 
-  TestPart0();
+//  TestPart0();
   TestPart1();
-  TestPart2();
-  TestPart3();
+//  TestPart2();
+//  TestPart3();
   
   NS_RELEASE(normalizer);
 }
