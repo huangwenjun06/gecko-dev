@@ -224,7 +224,8 @@ if test "$GNU_CXX"; then
     elif test "$ac_cv_cxx0x_headers_bug" = "yes"; then
         AC_MSG_ERROR([Your toolchain does not support C++0x/C++11 mode properly. Please upgrade your toolchain])
     fi
-
+    MOZ_NEEDS_LIBATOMIC=1
+    AC_SUBST(MOZ_NEEDS_LIBATOMIC)
     AC_CACHE_CHECK([whether 64-bits std::atomic requires -latomic],
         ac_cv_needs_atomic,
         AC_TRY_LINK(

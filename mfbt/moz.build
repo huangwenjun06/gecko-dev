@@ -116,6 +116,9 @@ SOURCES += mfbt_nonunified_src_cppsrcs
 
 DISABLE_STL_WRAPPING = True
 
+if CONFIG['MOZ_NEEDS_LIBATOMIC']:
+   OS_LIBS +=['atomic']
+
 # Suppress warnings in third-party LZ4 code.
 # TODO: Remove these suppressions after bug 993267 is fixed.
 

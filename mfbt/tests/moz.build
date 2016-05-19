@@ -64,3 +64,7 @@ if CONFIG['_MSC_VER']:
 USE_LIBS += [
     'mfbt',
 ]
+OS_LIBS += [
+   'atomic',
+]
+
