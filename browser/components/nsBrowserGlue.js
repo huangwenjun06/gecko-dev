@@ -1288,7 +1288,7 @@ BrowserGlue.prototype = {
       catch (ex) { /* never mind; suppose SessionStore is broken */ }
 
       // startup check, check all assoc
-      let isDefault = false;
+      let isDefault = true;
       let isDefaultError = false;
       try {
         isDefault = ShellService.isDefaultBrowser(true, false);
