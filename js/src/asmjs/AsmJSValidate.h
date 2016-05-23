@@ -58,7 +58,7 @@ const size_t AsmJSMinHeapLength = 64 * 1024;
 #ifdef _MIPS_ARCH_LOONGSON3A
 const size_t AsmJSPageSize = 16384;
 #else
-const size_t AsmJSPageSize = 4096;
+const size_t AsmJSPageSize = 16384;
 #endif
 
 static_assert(AsmJSMinHeapLength % AsmJSPageSize == 0, "Invalid page size");
