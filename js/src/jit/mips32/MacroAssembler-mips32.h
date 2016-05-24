@@ -44,6 +44,9 @@ static const int32_t HIGH_32_OFFSET = 4;
 
 class MacroAssemblerMIPS : public MacroAssemblerMIPSShared
 {
+  protected:
+    void PatchLongJumps(uint8_t* buffer);
+
   public:
     using MacroAssemblerMIPSShared::ma_b;
     using MacroAssemblerMIPSShared::ma_li;
@@ -106,6 +109,8 @@ class MacroAssemblerMIPS : public MacroAssemblerMIPSShared
         ma_load(ScratchRegister, addr, SizeWord);
         ma_b(ScratchRegister, rhs, l, c, jumpKind);
     }
+
+    void ma_bal(Label* l, DelaySlotFill delaySlotFill = FillDelaySlot);
 
     // fp instructions
     void ma_lid(FloatRegister dest, double value);

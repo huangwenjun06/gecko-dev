@@ -242,7 +242,11 @@ GenerateEntry(MacroAssembler& masm, AsmJSModule& module, unsigned exportIndex,
     masm.assertStackAlignment(AsmJSStackAlignment);
     Label target;
     target.bind(funcOffsets[exp.funcIndex()]);
+#if defined(JS_CODEGEN_MIPS32) || defined(JS_CODEGEN_MIPS64)
+    masm.asmCall(CallSiteDesc(CallSiteDesc::Relative), &target);
+#else
     masm.call(CallSiteDesc(CallSiteDesc::Relative), &target);
+#endif
 
     // Recover the stack pointer value before dynamic alignment.
     masm.loadAsmJSActivation(scratch);

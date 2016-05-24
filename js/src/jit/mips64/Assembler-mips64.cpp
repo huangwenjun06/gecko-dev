@@ -240,6 +240,7 @@ void
 Assembler::bind(InstImm* inst, uintptr_t branch, uintptr_t target)
 {
     int64_t offset = target - branch;
+    InstImm inst_bgezal = InstImm(op_regimm, zero, rt_bgezal, BOffImm16(0));
 
     // Generate the patchable mixed jump for call.
     if (inst->extractOpcode() == ((uint32_t)op_jal >> OpcodeShift)) {
@@ -252,6 +253,16 @@ Assembler::bind(InstImm* inst, uintptr_t branch, uintptr_t target)
         MOZ_ASSERT(BOffImm16::IsInRange(offset));
         inst[0].setBOffImm16(BOffImm16(offset));
         inst[1].makeNop();
+        return;
+    }
+
+    // Generate the long jump for calls because return address has to be the
+    // address after the reserved block.
+    if (inst[0].encode() == inst_bgezal.encode()) {
+        addLongJump(BufferOffset(branch));
+        Assembler::WriteLoad64Instructions(inst, ScratchRegister, target);
+        inst[4] = InstReg(op_special, ScratchRegister, zero, ra, ff_jalr).encode();
+        // There is 1 nop after this.
         return;
     }
 

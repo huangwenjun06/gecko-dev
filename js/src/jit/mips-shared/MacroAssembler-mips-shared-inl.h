@@ -14,6 +14,16 @@ namespace jit {
 
 //{{{ check_macroassembler_style
 // ===============================================================
+// Simple call functions.
+
+void
+MacroAssembler::asmCall(const wasm::CallSiteDesc& desc, Label* label)
+{
+    CodeOffset l = asmCall(label);
+    append(desc, l, framePushed());
+}
+
+// ===============================================================
 // Logical instructions
 
 void

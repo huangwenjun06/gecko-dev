@@ -312,6 +312,17 @@ MacroAssemblerMIPSCompat::inc64(AbsoluteAddress dest)
 }
 
 void
+MacroAssemblerMIPS::PatchLongJumps(uint8_t* buffer)
+{
+    for (size_t i = 0; i < numLongJumps(); i++) {
+        Instruction* inst1 = (Instruction*) ((uint32_t)buffer + longJump(i));
+
+        uint32_t value = Assembler::ExtractLuiOriValue(inst1, inst1->next());
+        Assembler::UpdateLuiOriValue(inst1, inst1->next(), (uint32_t)buffer + value);
+    }
+}
+
+void
 MacroAssemblerMIPS::ma_li(Register dest, CodeOffset* label)
 {
     BufferOffset bo = m_buffer.nextOffset();
@@ -619,6 +630,36 @@ MacroAssemblerMIPS::ma_b(Address addr, ImmGCPtr imm, Label* label, Condition c, 
 {
     ma_lw(SecondScratchReg, addr);
     ma_b(SecondScratchReg, imm, label, c, jumpKind);
+}
+
+void
+MacroAssemblerMIPS::ma_bal(Label* label, DelaySlotFill delaySlotFill)
+{
+    if (label->bound()) {
+        // Generate the long jump for calls because return address has to be
+        // the address after the reserved block.
+        addLongJump(nextOffset());
+        ma_liPatchable(ScratchRegister, Imm32(label->offset()));
+        as_jalr(ScratchRegister);
+        if (delaySlotFill == FillDelaySlot)
+            as_nop();
+        return;
+    }
+
+    // Second word holds a pointer to the next branch in label's chain.
+    uint32_t nextInChain = label->used() ? label->offset() : LabelBase::INVALID_OFFSET;
+
+    // Make the whole branch continous in the buffer.
+    m_buffer.ensureSpace(4 * sizeof(uint32_t));
+
+    BufferOffset bo = writeInst(getBranchCode(BranchIsCall).encode());
+    writeInst(nextInChain);
+    if (!oom())
+        label->use(bo.getOffset());
+    // Leave space for long jump.
+    as_nop();
+    if (delaySlotFill == FillDelaySlot)
+        as_nop();
 }
 
 void

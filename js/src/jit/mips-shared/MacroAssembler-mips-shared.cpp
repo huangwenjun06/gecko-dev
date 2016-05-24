@@ -1279,6 +1279,13 @@ MacroAssembler::call(Label* label)
 }
 
 CodeOffset
+MacroAssembler::asmCall(Label* label)
+{
+    ma_bal(label);
+    return CodeOffset(currentOffset());
+}
+
+CodeOffset
 MacroAssembler::callWithPatch()
 {
     addLongJump(nextOffset());

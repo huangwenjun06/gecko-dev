@@ -49,6 +49,9 @@ static_assert(1 << defaultShift == sizeof(JS::Value), "The defaultShift is wrong
 
 class MacroAssemblerMIPS64 : public MacroAssemblerMIPSShared
 {
+  protected:
+    void PatchLongJumps(uint8_t* buffer);
+
   public:
     using MacroAssemblerMIPSShared::ma_b;
     using MacroAssemblerMIPSShared::ma_li;
@@ -118,6 +121,8 @@ class MacroAssemblerMIPS64 : public MacroAssemblerMIPSShared
         ma_load(ScratchRegister, addr, SizeDouble);
         ma_b(ScratchRegister, rhs, l, c, jumpKind);
     }
+
+    void ma_bal(Label* l, DelaySlotFill delaySlotFill = FillDelaySlot);
 
     // fp instructions
     void ma_lid(FloatRegister dest, double value);

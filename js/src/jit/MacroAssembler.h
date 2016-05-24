@@ -496,6 +496,7 @@ class MacroAssembler : public MacroAssemblerSpecific
 
     CodeOffset call(Register reg) PER_SHARED_ARCH;
     CodeOffset call(Label* label) PER_SHARED_ARCH;
+    CodeOffset asmCall(Label* label) DEFINED_ON(mips_shared);
     void call(const Address& addr) DEFINED_ON(x86_shared);
     void call(ImmWord imm) PER_SHARED_ARCH;
     // Call a target native function, which is neither traceable nor movable.
@@ -506,6 +507,7 @@ class MacroAssembler : public MacroAssemblerSpecific
 
     inline void call(const wasm::CallSiteDesc& desc, const Register reg);
     inline void call(const wasm::CallSiteDesc& desc, Label* label);
+    inline void asmCall(const wasm::CallSiteDesc& desc, Label* label) DEFINED_ON(mips_shared);
     inline void call(const wasm::CallSiteDesc& desc, AsmJSInternalCallee callee);
 
     CodeOffset callWithPatch() PER_SHARED_ARCH;
