@@ -519,8 +519,9 @@ class MacroAssemblerMIPSCompat : public MacroAssemblerMIPS
         }
     }
     void branchTest32(Condition cond, Register lhs, Imm32 imm, Label* label) {
-        ma_li(ScratchRegister, imm);
-        branchTest32(cond, lhs, ScratchRegister, label);
+        MOZ_ASSERT(cond == Zero || cond == NonZero || cond == Signed || cond == NotSigned);
+        ma_and(ScratchRegister, lhs, imm);
+        ma_b(ScratchRegister, ScratchRegister, label, cond);
     }
     void branchTest32(Condition cond, const Address& address, Imm32 imm, Label* label) {
         load32(address, SecondScratchReg);
@@ -540,8 +541,9 @@ class MacroAssemblerMIPSCompat : public MacroAssemblerMIPS
         }
     }
     void branchTestPtr(Condition cond, Register lhs, const Imm32 rhs, Label* label) {
-        ma_li(ScratchRegister, rhs);
-        branchTestPtr(cond, lhs, ScratchRegister, label);
+        MOZ_ASSERT(cond == Zero || cond == NonZero || cond == Signed || cond == NotSigned);
+        ma_and(ScratchRegister, lhs, rhs);
+        ma_b(ScratchRegister, ScratchRegister, label, cond);
     }
     void branchTestPtr(Condition cond, const Address& lhs, Imm32 imm, Label* label) {
         loadPtr(lhs, SecondScratchReg);
