@@ -679,6 +679,61 @@ MacroAssemblerMIPSShared::compareFloatingPoint(FloatFormat fmt, FloatRegister lh
 }
 
 void
+MacroAssemblerMIPSShared::GenerateMixedJumps()
+{
+    // Generate all mixed jumps.
+    for (size_t i = 0; i < numMixedJumps(); i++) {
+        MixedJumpPatch& mjp = mixedJump(i);
+        if (MixedJumpPatch::NONE == mjp.kind && uintptr_t(mjp.target) <= size())
+            continue;
+        BufferOffset bo = m_buffer.nextOffset();
+        asMasm().ma_liPatchable(ScratchRegister, ImmWord(0));
+        as_jr(ScratchRegister);
+        as_nop();
+        mjp.mid = bo;
+    }
+}
+
+void
+MacroAssemblerMIPSShared::PatchMixedJumps(uint8_t* buffer)
+{
+    // Patch all mixed jumps.
+    for (size_t i = 0; i < numMixedJumps(); i++) {
+        MixedJumpPatch& mjp = mixedJump(i);
+        InstImm* b = (InstImm*)(buffer + mjp.src.getOffset());
+        uint32_t opcode = b->extractOpcode();
+        int offset;
+
+        if (mjp.mid.assigned()) {
+            offset = intptr_t(buffer) + mjp.mid.getOffset();
+            asMasm().PatchInstructionImmediate(buffer + mjp.mid.getOffset(),
+                                               PatchedImmPtr(buffer + uintptr_t(mjp.target)));
+        } else {
+            offset = intptr_t(buffer) + intptr_t(mjp.target);
+        }
+
+        if (((uint32_t)op_j >> OpcodeShift) == opcode ||
+            ((uint32_t)op_jal >> OpcodeShift) == opcode)
+        {
+            InstJump* j = (InstJump*)b;
+
+            j->setJOffImm26(JOffImm26(offset));
+        } else {
+            InstImm inst_beq = InstImm(op_beq, zero, zero, BOffImm16(0));
+
+            if (b[0].encode() == inst_beq.encode()) {
+                b[0] = InstJump(op_j, JOffImm26(offset)).encode();
+            } else {
+                b[0] = invertBranch(b[0], BOffImm16(4 * sizeof(uint32_t)));
+                b[2] = InstJump(op_j, JOffImm26(offset)).encode();
+            }
+        }
+
+        b[1].makeNop();
+    }
+}
+
+void
 MacroAssemblerMIPSShared::ma_cmp_set_double(Register dest, FloatRegister lhs, FloatRegister rhs,
                                             DoubleCondition c)
 {
@@ -1136,7 +1191,7 @@ MacroAssembler::call(Register reg)
 CodeOffset
 MacroAssembler::call(Label* label)
 {
-    ma_bal(label);
+    ma_jal(label);
     return CodeOffset(currentOffset());
 }
 
