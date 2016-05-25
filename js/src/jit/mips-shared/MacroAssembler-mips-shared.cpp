@@ -444,7 +444,7 @@ MacroAssemblerMIPSShared::branchWithCode(InstImm code, Label* label, JumpKind ju
     writeInst(nextInChain);
     if (!oom())
         label->use(bo.getOffset());
-    if (code.encode() != inst_beq.encode()) {
+    if ((jumpKind != ShortJump) && (code.encode() != inst_beq.encode())) {
         as_nop();
         as_nop();
     }
